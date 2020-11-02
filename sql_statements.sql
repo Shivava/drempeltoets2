@@ -21,8 +21,11 @@ CREATE TABLE activiteiten(
 -- tabel Jongeren aanmaken.
 CREATE TABLE Jongeren(
     id INT NOT NULL AUTO_INCREMENT,
-    Voornaam VARCHAR(250) NOT NULL,
-    NAW VARCHAR(250) NOT NULL,
+    voornaam VARCHAR(250) NOT NULL,
+    achternaam VARCHAR(250) NOT NULL,
+    email VARCHAR(250) NOT NULL,
+    adres VARCHAR(250) NOT NULL,
+    woonplaats VARCHAR(250) NOT NULL,
     PRIMARY KEY(id)
 );
 

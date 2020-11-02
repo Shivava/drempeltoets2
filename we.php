@@ -50,7 +50,7 @@
     //     return true;
     // }
 
-    public function create_or_update_jongeren($voornaam, $achternaam, $email, $adres, $woonplaats){
+    public function create_or_update_medewerker($voornaam, $achternaam, $email, $adres, $woonplaats){
       $query = "INSERT INTO jongeren
             (id, voornaam, achternaam, email, adres, woonplaats)
             VALUES
@@ -87,6 +87,26 @@
       $medewerker_id = $this->pdo->lastInsertId();
       return $medewerker_id;
     }
+
+    //get functie
+    public function get($query, $variables = []){
+    $statement = $this->pdo->prepare($query);
+
+    try {
+      $statement->execute($variables);
+      $data = $statement->fetchAll();
+      return $data;
+    } catch (PDOException $e) {
+      echo 'het is gefaald lol, zoals deze examen lol';
+    }
+}
+
+    public function insert($query, $vars = []){
+    $statement = $this->pdo->prepare($query);
+    $statement->execute($vars);
+    return $this->pdo->lastInsertId();
+    }
+
 
     public function authenticate_user($email){
 

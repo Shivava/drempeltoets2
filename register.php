@@ -16,7 +16,9 @@ if(isset($_POST['submit'])){
   $fields = [
       "voornaam",
       "achternaam",
-      "email"
+      "email",
+      "adres",
+      "woonplaats"
   ];
 
 $obj = new HelperFunctions();
@@ -27,9 +29,11 @@ $no_error = $obj->has_provided_input_for_required_fields($fields);
     $voornaam = $_POST['voornaam'];
     $achternaam = $_POST['achternaam'];
     $email = $_POST['email'];
+    $adres = $_POST['adres'];
+    $woonplaats = $_POST['woonplaats'];
 
     $db = new database('localhost', 'root', '', 'drempeltoets', 'utf8');
-    $db->create_or_update_medewerker($voornaam, $achternaam, $email);
+    $db->create_or_update_medewerker($voornaam, $achternaam, $email, $adres, $woonplaats);
 
 
         header('location: login.php');
@@ -51,6 +55,8 @@ $no_error = $obj->has_provided_input_for_required_fields($fields);
         <input type="text" name="voornaam" placeholder="voornaam" required/>
         <input type="text" name="achternaam" placeholder="achternaam" required/>
         <input type="email" name="email" placeholder="email" required/>
+        <input type="text" name="adres" placeholder="adres" required/>
+        <input type="text" name="woonplaats" placeholder="woonplaats" required/>
         <input type="submit" name='submit' value"Sign up!"/>
       </fieldset>
     </form>
