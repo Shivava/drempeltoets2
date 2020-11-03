@@ -16,11 +16,15 @@ if(!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true){
     <body>
         <div class="topnav">
             <a class="active" href="welcome_user.php">Home</a>
-            <a href="user.php">activiteiten toevoegen</a>
-            <a href="register.php">create account</a>
+            <a href="user.php">fabriek toevoegen</a>
+            <a href="locatie.php">locatie toevoegen</a>
+            <a href="voorraad.php">voorraad</a>
+            <a href="artikel.php">artikel toevoegen</a>
+            <a href="artikelverwijderen.php">artikel verwijderen</a>
+            <a href="register.php">account registreren</a>
             <a href="logout.php">Logout</a>
         </div>
-        <?php echo "Welcome " . htmlentities( $_SESSION['email']) ."!" ?>
+        <?php echo "Welcome " . htmlentities( $_SESSION['gebruikersnaam']) ."!" ?>
 
     </body>
 </html>

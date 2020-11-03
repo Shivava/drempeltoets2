@@ -50,20 +50,23 @@
     //     return true;
     // }
 
-    public function create_or_update_jongeren($voornaam, $achternaam, $email, $adres, $woonplaats){
-      $query = "INSERT INTO jongeren
-            (id, voornaam, achternaam, email, adres, woonplaats)
+    public function create_or_update_medewerker($voorletters, $voorvoegsels, $achternaam, $gebruikersnaam, $wachtwoord){
+      $query = "INSERT INTO medewerker
+            (id, voorletters, voorvoegsels, achternaam, gebruikersnaam, wachtwoord)
             VALUES
-            (NULL, :voornaam, :achternaam, :email, :adres, :woonplaats)";
+            (NULL, :voorletters, :voorvoegsels, :achternaam, :gebruikersnaam, :wachtwoord)";
 
       $statement = $this->pdo->prepare($query);
 
+      // password hashen
+      $hashed_password =  password_hash($pass, PASSWORD_DEFAULT);
+
       $statement->execute([
-        'voornaam'=>$voornaam,
+        'voorletters'=>$voorletters,
+        'voorvoegsels'=>$voorvoegsels,
         'achternaam'=>$achternaam,
-        'email'=>$email,
-        'adres'=>$adres,
-        'woonplaats'=>$woonplaats
+        'gebruikersnaam'=>$gebruikersnaam,
+        'wachtwoord'=>$hashed_password
       ]);
 
       // haalt de laatst toegevoegde id op uit de db
@@ -71,16 +74,17 @@
       return $medewerker_id;
     }
 
-    public function create_or_update_activiteit($omschrijving){
-      $query = "INSERT INTO activiteiten
-            (id, omschrijving)
+    public function create_or_update_fabriek($fabriek, $telefoon){
+      $query = "INSERT INTO fabriek
+            (id, fabriek, telefoon)
             VALUES
-            (NULL, :omschrijving)";
+            (NULL, :fabriek, :telefoon)";
 
       $statement = $this->pdo->prepare($query);
 
       $statement->execute([
-        'omschrijving'=>$omschrijving,
+        'fabriek'=>$fabriek,
+        'telefoon'=>$telefoon
       ]);
 
       // haalt de laatst toegevoegde id op uit de db
@@ -88,31 +92,104 @@
       return $medewerker_id;
     }
 
-    public function authenticate_user($email){
+    public function create_or_update_artikel($fabriekid, $product, $type, $inkoopprijs, $verkoopprijs){
+      $query = "INSERT INTO artikel
+            (id, fabriekid, product, type, inkoopprijs, verkoopprijs)
+            VALUES
+            (NULL, :fabriekid, :product, :type, :inkoopprijs, :verkoopprijs)";
 
-        $query = "SELECT email
-        FROM medewerker
-        WHERE email = :email";
+      $statement = $this->pdo->prepare($query);
 
-        $stmt = $this->pdo->prepare($query);
-        // voorbereide instructieobject wordt uitgevoerd.
-        $stmt->execute(['email' => $email]); //-> araay
-        $result = $stmt->fetch(); // returned een array
-        // checkt of $result een array is
-        if(is_array($result)){
-        // voerd count uit als #result een array is
-        if(count($result) > 0){
+      $statement->execute([
+        'fabriekid'=>$fabriekid,
+        'product'=>$product,
+        'type'=>$type,
+        'inkoopprijs'=>$inkoopprijs,
+        'verkoopprijs'=>$verkoopprijs,
+      ]);
 
-        session_start();
+      // haalt de laatst toegevoegde id op uit de db
+      $medewerker_id = $this->pdo->lastInsertId();
+      return $medewerker_id;
+    }
 
-        // slaat userdata in sessie veriable
-        $_SESSION['email'] = $email;
-        $_SESSION['loggedin'] = true;
+    public function remove_artikel($id){
+      $query = "DELETE FROM artikel WHERE id = :id";
 
-        echo "testing 123787";
-        header("location: welcome_user.php");
-        }
+      $statement = $this->pdo->prepare($query);
+      $statement->execute([
+        'id'=>$id
+      ]);
+
+      // haalt de laatst toegevoegde id op uit de db
+      $artikel_id = $this->pdo->lastInsertId();
+      return $artikel_id;
+    }
+
+    public function create_or_update_locatie($locatie){
+      $query = "INSERT INTO locatie
+            (id, locatie)
+            VALUES
+            (NULL, :locatie)";
+
+      $statement = $this->pdo->prepare($query);
+      $statement->execute([
+        'locatie'=>$locatie
+      ]);
+
+      // haalt de laatst toegevoegde id op uit de db
+      $locatie_id = $this->pdo->lastInsertId();
+      return $locatie_id;
+    }
+
+    public function create_or_update_voorraad($locatieID, $artikelID, $aantal){
+      $query = "INSERT INTO voorraad
+            (id, locatieID, artikelID, aantal)
+            VALUES
+            (NULL, :locatieID, :artikelID, :aantal)";
+
+      $statement = $this->pdo->prepare($query);
+      $statement->execute([
+        'locatieID'=>$locatieID,
+        'artikelID'=>$artikelID,
+        'aantal'=>$aantal
+
+      ]);
+
+      // haalt de laatst toegevoegde id op uit de db
+      $voorraad_id = $this->pdo->lastInsertId();
+      return $voorraad_id;
+    }
+
+      public function authenticate_user($gebruikersnaam, $wachtwoord){
+
+          $query = "SELECT wachtwoord
+          FROM medewerker
+          WHERE gebruikersnaam = :gebruikersnaam";
+
+          $stmt = $this->pdo->prepare($query);
+          // voorbereide instructieobject wordt uitgevoerd.
+          $stmt->execute(['gebruikersnaam' => $gebruikersnaam]); //-> araay
+          $result = $stmt->fetch(); // returned een array
+
+          // checkt of $result een array is
+          if(is_array($result)){
+          // voerd count uit als #result een array is
+          if(count($result) > 0){
+
+          $hashed_password = $result['wachtwoord'];
+
+          if($gebruikersnaam && password_verify($pass, $hashed_password)){
+              session_start();
+              // slaat userdata in sessie veriable
+              $_SESSION['gebruikersnaam'] = $gebruikersnaam;
+              $_SESSION['loggedin'] = true;
+
+              echo "testing 123787";
+              header("location: welcome_user.php");
+          }
       }
     }
+  }
 }
 ?>

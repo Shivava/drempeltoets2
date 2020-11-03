@@ -5,7 +5,7 @@ include 'database.php';
 session_start();
 //kijkt of er een account ingelogd is, zo niet dan word ie redirected naar login.php
 if(!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true){
-    header('location: login.php');
+    // header('location: login.php');
     exit;
 }
 
