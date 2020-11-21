@@ -10,7 +10,7 @@ $_SESSION = [];
 session_destroy();
 
 // user word geriderect naar login pagina
-header('location: login.php');
+header('location: index.php');
 exit;
 
 ?>

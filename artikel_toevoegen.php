@@ -14,11 +14,11 @@ if(isset($_POST['submit'])){
 
   // maak een array met alle name attributes
   $fields = [
-      "voorletters",
-      "voorvoegsels",
-      "achternaam",
-      "gebruikersnaam",
-      "Wachtwoord"
+      "fabriekid",
+      "product",
+      "type",
+      "inkoopprijs",
+      "verkoopprijs"
   ];
 
 $obj = new HelperFunctions();
@@ -26,22 +26,20 @@ $no_error = $obj->has_provided_input_for_required_fields($fields);
 
   // in case of field values, proceed, execute insert
   if($no_error){
-    $voorletters = $_POST['voorletters'];
-    $voorvoegsels = $_POST['voorvoegsels'];
-    $achternaam = $_POST['achternaam'];
-    $gebruikersnaam = $_POST['gebruikersnaam'];
-    $Wachtwoord = $_POST['Wachtwoord'];
-    if ($_POST["password"] === $_POST["repassword"]) {
+    $fabriekid = $_POST['fabriekid'];
+    $product = $_POST['product'];
+    $type = $_POST['type'];
+    $inkoopprijs = $_POST['inkoopprijs'];
+    $verkoopprijs = $_POST['verkoopprijs'];
 
 
     $db = new database('localhost', 'root', '', 'drempeltoets', 'utf8');
-    $db->create_medewerker($voorletters, $voorvoegsels, $achternaam, $gebruikersnaam, $Wachtwoord);
+    $db->create_artikel($fabriekid, $product, $type, $inkoopprijs, $verkoopprijs);
 
       header('location: index.php');
       exit;
     }
   }
-}
 ?>
 
 <html>
@@ -52,14 +50,14 @@ $no_error = $obj->has_provided_input_for_required_fields($fields);
   </head>
 
   <body>
-      <form method="post" align="center" action='register.php' method='post' accept-charset='UTF-8'>
+      <form method="post" align="center" action='artikel_toevoegen.php' method='post' accept-charset='UTF-8'>
       <fieldset >
         <legend>Registratie medewerker</legend>
-        <input type="text" name="voorletters" placeholder="voorletters" required/>
-        <input type="text" name="voorvoegsels" placeholder="voorvoegsels" required/>
-        <input type="text" name="achternaam" placeholder="achternaam" required/>
-        <input type="text" name="gebruikersnaam" placeholder="gebruikersnaam" required/>
-        <input type="password" name="Wachtwoord" placeholder="Wachtwoord" required/><br><br>
+        <input type="text" name="fabriekid" placeholder="fabriekid" required/>
+        <input type="text" name="product" placeholder="product" required/>
+        <input type="text" name="type" placeholder="type" required/>
+        <input type="text" name="inkoopprijs" placeholder="inkoopprijs" required/>
+        <input type="text" name="verkoopprijs" placeholder="verkoopprijs" required/><br><br>
         <button class="btn btn-outline-success" type="submit" name="submit" value="Sign up!">Register</button>
         <a class="btn btn-outline-info" href="index.php">homepagina</a>
       </fieldset>

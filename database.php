@@ -11,8 +11,8 @@
     private $pdo;
 
     // maakt class constants (admin en user)
-    const ADMIN = 1; // these are the values from the db
-    const USER = 2;
+    // const ADMIN = 1; // these are the values from the db
+    // const USER = 2;
 
     public function __construct($host, $user, $pass, $db, $charset){
       $this->host = $host;
@@ -36,21 +36,85 @@
       }
     }
 
-    // helper functie om te kijken of al een account bestaad zodat er geen twee accounts kunnen aangemaakt worden
-    // private function is_new_account($username){
-    //     //controlleerd of de naam al erin is
-    //     $stmt = $this->db->prepare('SELECT * FROM account WHERE username=:username');
-    //     $stmt->execute(['username'=>$username]);
-    //     $result = $stmt->fetch();
-    //
-    //     if(is_array($result) && count($result) > 0){
-    //         return false;
-    //     }
-    //     //als het true result betekent dat een account al bestaat
-    //     return true;
-    // }
+    private function check_username($username){
+        $query = "SELECT *
+                FROM account
+                WHERE username=:username";
 
-    public function create_or_update_medewerker($voorletters, $voorvoegsels, $achternaam, $gebruikersnaam, $wachtwoord){
+        $stmt = $this->pdo->prepare($query);
+
+        $stmt->execute(['username'=>$username]);
+
+        $result = $stmt->fetch();
+
+    }
+
+    public function deleteUser($id){
+        echo $id;
+        try{
+            $this->pdo->beginTransaction();
+
+            $stmt = $this->pdo->prepare("DELETE FROM medewerker WHERE id=:id");
+            $stmt->execute(['id'=>$id]);
+
+            $this->pdo->commit();
+
+        }catch(Exception $e){
+            $this->pdo->rollback();
+            echo 'Error: '.$e->getMessage();
+        }
+    }
+
+    public function editUser($id, $voorletters, $voorvoegsels, $achternaam){
+      $query = "  UPDATE
+                    medewerker
+                  SET
+                    voorletters = :voorletters,
+                    voorvoegsels = :voorvoegsels,
+                    achternaam = :achternaam
+                  WHERE id = :id";
+
+      $statement = $this->pdo->prepare($query);
+
+      $statement->execute([
+      'id'=>$id,
+      'voorletters'=>$voorletters,
+      'voorvoegsels'=>$voorvoegsels,
+      'achternaam'=>$achternaam
+      ]);
+      
+      $medewerker_id = $this->pdo->lastInsertId();
+      return $medewerker_id;
+    }
+
+    public function getAccountInformation($id){
+        $statement = $this->pdo->prepare("SELECT * FROM medewerker WHERE id=:id");
+        $statement->execute(['id'=>$id]);
+        $account = $statement->fetch(PDO::FETCH_ASSOC);
+        return $account;
+    }
+
+    public function view_user_detail($gebruikersnaam){
+
+        $query = "SELECT id, voorletters, voorvoegsels, achternaam, gebruikersnaam FROM medewerker
+
+        ";
+
+        if($gebruikersnaam !== NULL){
+            // query for specific user when a username is supplied
+            $query .= 'WHERE gebruikersnaam = :gebruikersnaam';
+        }
+
+        $stmt = $this->pdo->prepare($query);
+
+        // check if username is supplied, if so, pass assoc array to execute
+        $gebruikersnaam !== NULL ? $stmt->execute(['gebruikersnaam'=>$gebruikersnaam]) : $stmt->execute();
+
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $results;
+    }
+
+    public function create_medewerker($voorletters, $voorvoegsels, $achternaam, $gebruikersnaam, $wachtwoord){
       $query = "INSERT INTO medewerker
             (id, voorletters, voorvoegsels, achternaam, gebruikersnaam, wachtwoord)
             VALUES
@@ -74,25 +138,41 @@
       return $medewerker_id;
     }
 
-    public function create_or_update_fabriek($fabriek, $telefoon){
-      $query = "INSERT INTO fabriek
-            (id, fabriek, telefoon)
-            VALUES
-            (NULL, :fabriek, :telefoon)";
+    public function deleteArtikelen($id){
+        try{
+            $this->pdo->beginTransaction();
 
-      $statement = $this->pdo->prepare($query);
+            $stmt = $this->pdo->prepare("DELETE FROM artikel WHERE id=:id");
+            $stmt->execute(['id'=>$id]);
 
-      $statement->execute([
-        'fabriek'=>$fabriek,
-        'telefoon'=>$telefoon
-      ]);
-
-      // haalt de laatst toegevoegde id op uit de db
-      $medewerker_id = $this->pdo->lastInsertId();
-      return $medewerker_id;
+            $this->pdo->commit();
+        }catch(Exception $e){
+            $this->pdo->rollback();
+            echo 'Error: '.$e->getMessage();
+        }
     }
 
-    public function create_or_update_artikel($fabriekid, $product, $type, $inkoopprijs, $verkoopprijs){
+    public function get_artikel_information($product){
+
+        $query = "SELECT id, fabriekid, product, type, inkoopprijs, verkoopprijs FROM artikel
+
+        ";
+
+        if($product !== NULL){
+            // query for specific user when a username is supplied
+            $query .= 'WHERE product = :product';
+        }
+
+        $stmt = $this->pdo->prepare($query);
+
+        // check if username is supplied, if so, pass assoc array to execute
+        $product !== NULL ? $stmt->execute(['product'=>$product]) : $stmt->execute();
+
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $results;
+    }
+
+    public function create_artikel($fabriekid, $product, $type, $inkoopprijs, $verkoopprijs){
       $query = "INSERT INTO artikel
             (id, fabriekid, product, type, inkoopprijs, verkoopprijs)
             VALUES
@@ -113,12 +193,17 @@
       return $medewerker_id;
     }
 
-    public function remove_artikel($id){
-      $query = "DELETE FROM artikel WHERE id = :id";
-
+    public function update_artikel($id, $product, $type, $inkoopprijs, $verkoopprijs){
+      $query = "UPDATE artikel
+      SET product = :product, type = :type, inkoopprijs = :inkoopprijs, verkoopprijs = :verkoopprijs
+      WHERE id = :id";
       $statement = $this->pdo->prepare($query);
       $statement->execute([
-        'id'=>$id
+        'id'=>$id,
+        'product'=>$product,
+        'type'=>$type,
+        'inkoopprijs'=>$inkoopprijs,
+        'verkoopprijs'=>$verkoopprijs
       ]);
 
       // haalt de laatst toegevoegde id op uit de db
@@ -126,42 +211,7 @@
       return $artikel_id;
     }
 
-    public function create_or_update_locatie($locatie){
-      $query = "INSERT INTO locatie
-            (id, locatie)
-            VALUES
-            (NULL, :locatie)";
-
-      $statement = $this->pdo->prepare($query);
-      $statement->execute([
-        'locatie'=>$locatie
-      ]);
-
-      // haalt de laatst toegevoegde id op uit de db
-      $locatie_id = $this->pdo->lastInsertId();
-      return $locatie_id;
-    }
-
-    public function create_or_update_voorraad($locatieID, $artikelID, $aantal){
-      $query = "INSERT INTO voorraad
-            (id, locatieID, artikelID, aantal)
-            VALUES
-            (NULL, :locatieID, :artikelID, :aantal)";
-
-      $statement = $this->pdo->prepare($query);
-      $statement->execute([
-        'locatieID'=>$locatieID,
-        'artikelID'=>$artikelID,
-        'aantal'=>$aantal
-
-      ]);
-
-      // haalt de laatst toegevoegde id op uit de db
-      $voorraad_id = $this->pdo->lastInsertId();
-      return $voorraad_id;
-    }
-
-      public function authenticate_user($gebruikersnaam, $wachtwoord){
+    public function authenticate_user($gebruikersnaam, $wachtwoord){
 
           $query = "SELECT wachtwoord
           FROM medewerker
@@ -186,10 +236,10 @@
               $_SESSION['loggedin'] = true;
 
               echo "testing 123787";
-              header("location: welcome_user.php");
+              header("location: index.php");
+              }
+            }
           }
-      }
-    }
+        }
   }
-}
 ?>

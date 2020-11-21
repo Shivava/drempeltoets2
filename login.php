@@ -1,16 +1,10 @@
 <!-- Furkan ucar OITAOO8B -->
 <?php
 
-// session_start();
-//
-// if(!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true){
-//     header('location: login.php');
-//     exit;
-//   }
+session_start();
 
 include 'database.php';
 include 'helperfunctions.php';
-
 
 if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit']) && !empty($_POST['submit'])){
   // maak een array met alle name attributes
@@ -39,19 +33,22 @@ if($no_error){
 <html lang="en" dir="ltr">
 	<head>
 		<meta charset="utf-8">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
 		<title>login pagina</title>
 	</head>
 	<body>
-		<form id='login' action='login.php' method='post' accept-charset='UTF-8'>
+		<form id='login' align="center" action='login.php' method='post' accept-charset='UTF-8'>
+        <span class="text-danger"><?php echo (!empty($loginStatus) && $loginStatus != '') ? $loginStatus ."<br>": ''  ?></span>
 			<fieldset >
-				<legend>Login</legend>
-				<input type="text" name="gebruikersnaam" placeholder="gebruikersnaam" required/>
-				<input type="password" name="wachtwoord" placeholder="wachtwoord" required/>
-				<input type='submit' name="submit" value='submit' />
+				<legend>Inloggen</legend>
+				<input type="text" name="gebruikersnaam" placeholder="gebruikersnaam" required/><br><br>
+				<input type="password" name="wachtwoord" placeholder="wachtwoord" required/><br><br>
 			</fieldset>
-		  	<p>
-		  		Not a member? <a href="register.php">register</a>
-		  	</p>
-		</form>
+      <div align="center">
+          <button class="btn btn-outline-success" type="submit" name="submit" value="submit">Login</button>
+          <a class="btn btn-outline-info" href="register.php">Registreren</a>
+      </div>
+  </form>
+
 	</body>
 </html>
